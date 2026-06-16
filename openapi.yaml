@@ -1,0 +1,242 @@
+openapi: 3.1.0
+info:
+  title: SCALA Score API
+  description: |
+    Search and enrich company data from 250M+ business records across 50+ countries.
+
+    Revenue, employees, credit scores, NACE codes, legal forms, and more — sourced from official government business registries.
+
+    **Free tier**: 50 lookups/month, no signup needed.
+
+    ## Tools
+    - CLI: `npx enrich-companies companies.csv`
+    - Python: `pip install enrich-companies`
+    - MCP Server: `npx scala-mcp-server`
+    - Chrome Extension: Score Company Lookup
+  version: '1.0.0'
+  contact:
+    name: Alessandro Binda
+    email: ale@get-scala.com
+    url: https://get-scala.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://score.get-scala.com/api
+    description: Production API
+
+paths:
+  /search:
+    get:
+      operationId: searchCompanies
+      summary: Search companies
+      description: Search by name, VAT number, or keyword. Filter by country, NACE code, status.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Company name, VAT number, or keyword
+          schema:
+            type: string
+          example: Ferrero
+        - name: country
+          in: query
+          description: ISO 2-letter country code
+          schema:
+            type: string
+          example: IT
+        - name: nace
+          in: query
+          description: NACE industry code
+          schema:
+            type: string
+          example: '56.10'
+        - name: status
+          in: query
+          description: Filter by company status
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: limit
+          in: query
+          description: Max results (1-100)
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total matching companies
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Company'
+              example:
+                total: 1
+                results:
+                  - id: "3fbe185e-0545-418f-9907-56f0c0e26b86"
+                    name: "FERRERO COMMERCIALE ITALIA S.R.L."
+                    country: "IT"
+                    city: "ALBA (CN)"
+                    revenue: 19300000000
+                    employees: 48697
+                    score: 75
+                    grade: "B+"
+
+  /lookup:
+    get:
+      operationId: lookupCompany
+      summary: Look up a company
+      description: Get detailed company data by ID or VAT number.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Company ID or VAT number
+          schema:
+            type: string
+          example: IT02727330014
+      responses:
+        '200':
+          description: Company details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  company:
+                    $ref: '#/components/schemas/CompanyDetail'
+
+  /stats:
+    get:
+      operationId: databaseStats
+      summary: Database statistics
+      description: Get total companies, countries, and last update timestamp.
+      responses:
+        '200':
+          description: Database statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_companies:
+                    type: integer
+                    example: 250700000
+                  total_countries:
+                    type: integer
+                    example: 52
+                  last_updated:
+                    type: string
+                    format: date-time
+
+  /countries:
+    get:
+      operationId: listCountries
+      summary: List available countries
+      description: Get all countries with company counts.
+      responses:
+        '200':
+          description: Country list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        country_code:
+                          type: string
+                          example: IT
+                        country_name:
+                          type: string
+                          example: Italy
+                        company_count:
+                          type: integer
+                          example: 6200000
+
+components:
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique company identifier
+        name:
+          type: string
+          description: Company name
+        country:
+          type: string
+          description: ISO 2-letter country code
+        city:
+          type: string
+        revenue:
+          type: number
+          description: Annual revenue in EUR
+        employees:
+          type: integer
+          description: Employee count
+        score:
+          type: number
+          description: Health score (0-100)
+        grade:
+          type: string
+          description: Letter grade (AA to E)
+        nace_code:
+          type: string
+          description: NACE industry code
+        nace_description:
+          type: string
+          description: Industry description
+        status:
+          type: string
+          enum: [active, inactive]
+
+    CompanyDetail:
+      allOf:
+        - $ref: '#/components/schemas/Company'
+        - type: object
+          properties:
+            vat_number:
+              type: string
+              description: VAT/Tax ID
+            legal_form:
+              type: string
+            address:
+              type: string
+            postal_code:
+              type: string
+            founded:
+              type: string
+              description: Incorporation date
+            website:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+            net_income:
+              type: number
+            total_assets:
+              type: number
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: Optional API key for higher rate limits. Free tier (50/month) works without a key.
