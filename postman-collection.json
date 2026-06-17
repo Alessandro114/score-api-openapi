@@ -1,0 +1,101 @@
+{
+  "info": {
+    "name": "SCALA Score API — 250M+ Company Records",
+    "description": "Search and enrich company data from 250M+ business records across 50+ countries.\n\nRevenue, employees, credit scores, NACE codes, legal forms — sourced from official government business registries.\n\n**Free tier**: 50 lookups/month, no signup needed.\n\nTools: npm (enrich-companies, company-lookup, scala-mcp-server), PyPI (enrich-companies, scala-score), Chrome Extension, GitHub Action.\n\nMore info: https://github.com/Alessandro114/score-api-openapi",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Companies",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://score.get-scala.com/api/search?q=Ferrero&country=IT&limit=5",
+          "protocol": "https",
+          "host": ["score", "get-scala", "com"],
+          "path": ["api", "search"],
+          "query": [
+            { "key": "q", "value": "Ferrero", "description": "Company name, VAT number, or keyword" },
+            { "key": "country", "value": "IT", "description": "ISO 2-letter country code (optional)" },
+            { "key": "limit", "value": "5", "description": "Max results 1-100 (default 10)" }
+          ]
+        },
+        "description": "Search companies by name, VAT number, or keyword. Filter by country, NACE code, or status."
+      }
+    },
+    {
+      "name": "Search by NACE Industry",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://score.get-scala.com/api/search?q=restaurant&country=IT&nace=56.10&limit=10",
+          "protocol": "https",
+          "host": ["score", "get-scala", "com"],
+          "path": ["api", "search"],
+          "query": [
+            { "key": "q", "value": "restaurant" },
+            { "key": "country", "value": "IT" },
+            { "key": "nace", "value": "56.10", "description": "NACE code for restaurants" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Lookup by VAT Number",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://score.get-scala.com/api/lookup?id=IT02727330014",
+          "protocol": "https",
+          "host": ["score", "get-scala", "com"],
+          "path": ["api", "lookup"],
+          "query": [
+            { "key": "id", "value": "IT02727330014", "description": "Company ID or VAT number" }
+          ]
+        },
+        "description": "Get detailed company data by ID or VAT number."
+      }
+    },
+    {
+      "name": "Search Active Companies Only",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://score.get-scala.com/api/search?q=Siemens&country=DE&status=active&limit=5",
+          "protocol": "https",
+          "host": ["score", "get-scala", "com"],
+          "path": ["api", "search"],
+          "query": [
+            { "key": "q", "value": "Siemens" },
+            { "key": "country", "value": "DE" },
+            { "key": "status", "value": "active", "description": "Filter: active or inactive" },
+            { "key": "limit", "value": "5" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search French Companies",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://score.get-scala.com/api/search?q=LVMH&country=FR&limit=3",
+          "protocol": "https",
+          "host": ["score", "get-scala", "com"],
+          "path": ["api", "search"],
+          "query": [
+            { "key": "q", "value": "LVMH" },
+            { "key": "country", "value": "FR" },
+            { "key": "limit", "value": "3" }
+          ]
+        }
+      }
+    }
+  ]
+}
